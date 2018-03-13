@@ -1,4 +1,5 @@
 const fetcher = require('./fetcher');
+const utils = require('./util');
 
 const Router = {};
 
@@ -10,6 +11,12 @@ Router.notFound = (request, response) => {
 Router.getAllBlocks = (request, response) => {
   fetcher.getAllBlocks(function (outputObj) {
     response.json(outputObj);
+  });
+};
+
+Router.getServerTime = (request, response) => {
+  response.json({
+    timestamp: utils.serverTime()
   });
 };
 
