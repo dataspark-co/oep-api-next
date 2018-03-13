@@ -49,15 +49,6 @@ function setupClient() {
 }
 
 function prettyPrintTimeStamp(unix_timestamp) {
-  // var newDate = new Date();
-
-  // newDate.setTime(unix_timestamp * 1000);
-  // dateString = newDate.toUTCString();
-
-  // return dateString;
-
-  // var dateObj = moment(unix_timestamp);
-
   return moment.tz(parseInt(unix_timestamp) * 1000, 'Europe/Kiev').format();
 }
 
