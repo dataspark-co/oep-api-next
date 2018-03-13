@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/valera-rozuvan/oep-api-next#readme",
   "dependencies": {
+    "express": "^4.16.3",
     "moment": "^2.21.0",
     "moment-timezone": "^0.5.14",
     "redis": "^2.8.0"
