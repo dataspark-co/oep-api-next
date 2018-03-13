@@ -10,7 +10,6 @@ function cleanExit(client, callback, responseArr) {
   client.end(true);
   client.quit();
 
-  // process.exit(1);
   callback(responseArr);
 }
 
@@ -88,7 +87,6 @@ function getMaturedBlocks() {
               }
 
               if (blockObj && blockObj.length && blockObj.length >= 5) {
-                // console.log('' + (i + 1) + ': ' + blockObj[3] + ', ' + prettyPrintTimeStamp(blockObj[4]));
                 responseArr.push({
                   height: i + 1,
                   hash: blockObj[3],
