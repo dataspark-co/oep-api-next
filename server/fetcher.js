@@ -1,10 +1,8 @@
 const redis = require('redis');
 const moment = require('moment-timezone');
+const request = require('request');
 
 const CONFIG = require('../config.json');
-
-let _callbackHash = function () {};
-let client = null;
 
 function cleanExit(client, callback, responseArr) {
   client.end(true);
@@ -13,11 +11,13 @@ function cleanExit(client, callback, responseArr) {
   callback(responseArr);
 }
 
-function setupClient() {
-  client = redis.createClient({
+function setupClient(callback) {
+  let client = redis.createClient({
     host: CONFIG.redis.host,
     port: CONFIG.redis.port,
     retry_strategy: function (options) {
+      console.log('redis::retry_strategy');
+
       if (options.error && options.error.code === 'ECONNREFUSED') {
         // End reconnecting on a specific error and flush all commands with
         // a individual error
@@ -43,15 +43,17 @@ function setupClient() {
   client.on('error', function (err) {
     console.log('Error! client.on("error") caught');
 
-    cleanExit(client, _callbackHash, []);
+    cleanExit(client, callback, []);
   });
+
+  return client;
 }
 
 function prettyPrintTimeStamp(unix_timestamp) {
   return moment.tz(parseInt(unix_timestamp) * 1000, 'Europe/Kiev').format();
 }
 
-function getMaturedBlocks() {
+function getMaturedBlocks(client, callback) {
   client.exists('eth:blocks:matured', function (err, reply) {
     if (reply === 1) {
       console.log('Hash "eth:blocks:matured" exists.');
@@ -99,12 +101,12 @@ function getMaturedBlocks() {
           }
         }
 
-        cleanExit(client, _callbackHash, responseArr);
+        cleanExit(client, callback, responseArr);
       });
     } else {
       console.log('Hash "eth:blocks:matured" does not exist.');
 
-      cleanExit(client, _callbackHash, []);
+      cleanExit(client, callback, []);
     }
   });
 }
@@ -114,28 +116,87 @@ function isNumber(n) {
 }
 
 function getAllBlocks(callback) {
-  _callbackHash = callback;
+  let client = setupClient(callback);
 
-  setupClient();
+  console.log('111');
 
   client.hgetall('eth:stats', function (err, reply) {
+    console.log('222');
     if (err) {
       console.log('Error! client.zscan("eth:blocks:matured")');
       console.log(err);
-      cleanExit(client, _callbackHash, []);
+      cleanExit(client, callback, []);
     } else {
       let totalMatureBlocks = parseInt(reply.lastBlockFound);
 
       if (isNumber(totalMatureBlocks) && totalMatureBlocks > 0) {
-        getMaturedBlocks();
+        getMaturedBlocks(client, callback);
       } else {
         console.log('No mature blocks.');
-        cleanExit(client, _callbackHash, []);
+        cleanExit(client, callback, []);
       }
     }
   });
 }
 
+let poolHashRateData = [];
+let poolHashRateFetchSetup = false;
+
+function setupPoolHashRateFetch() {
+  if (poolHashRateFetchSetup === true) {
+    return;
+  }
+  poolHashRateFetchSetup = true;
+
+  const apiUrl = 'http://' + CONFIG.oldApi.host + ':' + CONFIG.oldApi.port + '/api/stats';
+
+  setInterval(() => {
+    request(apiUrl, (error, response, body) => {
+      if (error) {
+        console.log('Error while getting "' + apiUrl + '".');
+        console.log(error);
+
+        return;
+      }
+
+      if (response.statusCode !== 200) {
+        console.log('Status code "' + response.statusCode + '" while getting "' + apiUrl + '".');
+
+        return;
+      }
+
+      let responseObj = null;
+
+      try {
+        responseObj = JSON.parse(body);
+      } catch (err) {
+        console.log('Error while parsing "' + apiUrl + '" response.');
+        console.log(err);
+
+        return;
+      }
+
+      if (responseObj && responseObj.hashrate) {
+        const hashRate = parseInt(responseObj.hashrate);
+
+        if (isNumber(hashRate)) {
+          poolHashRateData.push({
+            h: hashRate,
+            t: prettyPrintTimeStamp(moment().unix())
+          });
+        }
+      }
+    })
+  }, 3000);
+}
+
+function getPoolHashRate() {
+  setupPoolHashRateFetch();
+
+  return poolHashRateData;
+}
+
 module.exports = {
-  getAllBlocks: getAllBlocks
+  getAllBlocks: getAllBlocks,
+  getPoolHashRate: getPoolHashRate
 };

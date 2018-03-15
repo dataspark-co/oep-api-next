@@ -20,6 +20,12 @@ Router.getServerTime = (request, response) => {
   });
 };
 
+Router.getPoolHashRate = (request, response) => {
+  response.json({
+    poolHashRate: fetcher.getPoolHashRate()
+  });
+};
+
 Router.unknownApiError = (request, response) => {
   response.status(404);
   response.send('The API does not contain a "' + request.url + '" route.');

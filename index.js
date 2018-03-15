@@ -17,6 +17,7 @@ app.use(CorsMiddleware);
 
 app.get('/api/blocks', Router.getAllBlocks);
 app.get('/api/server_time', Router.getServerTime);
+app.get('/api/pool_hash_rate', Router.getPoolHashRate);
 app.get('/api/*', Router.unknownApiError);
 
 app.get('/*', Router.notFound);
