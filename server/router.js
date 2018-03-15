@@ -9,20 +9,18 @@ Router.notFound = (request, response) => {
 };
 
 Router.getAllBlocks = (request, response) => {
-  fetcher.getAllBlocks(function (outputObj) {
-    response.json(outputObj);
+  response.json(fetcher.getAllBlocks());
+};
+
+Router.getPoolHashRate = (request, response) => {
+  response.json({
+    poolHashRate: fetcher.getPoolHashRate()
   });
 };
 
 Router.getServerTime = (request, response) => {
   response.json({
     timestamp: utils.serverTime()
-  });
-};
-
-Router.getPoolHashRate = (request, response) => {
-  response.json({
-    poolHashRate: fetcher.getPoolHashRate()
   });
 };
 
