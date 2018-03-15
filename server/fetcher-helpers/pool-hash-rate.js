@@ -42,6 +42,10 @@ function poolHashRateFetch() {
           h: hashRate,
           t: utils.prettyPrintTimeStamp(moment().unix())
         });
+
+        if (poolHashRateData.length > 10 * 10) {
+          poolHashRateData.splice(0, 1);
+        }
       }
     }
   });
@@ -55,7 +59,7 @@ function setupPoolHashRateFetch() {
 
   setInterval(() => {
     poolHashRateFetch();
-  }, 3000);
+  }, 1000 * 6); // every 6 seconds
 }
 
 function getPoolHashRateData() {
