@@ -18,6 +18,13 @@ Router.getPoolHashRate = (request, response) => {
   });
 };
 
+Router.getNumWorkers = (request, response) => {
+  response.json({
+    numWorkers: fetcher.getNumWorkers(),
+    allMiners: fetcher.getAllMiners()
+  });
+};
+
 Router.getServerTime = (request, response) => {
   response.json({
     timestamp: utils.serverTime()
