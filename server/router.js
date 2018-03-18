@@ -1,7 +1,9 @@
+const fs = require('fs');
 const fetcher = require('./fetcher');
 const utils = require('./util');
 
 const Router = {};
+const projRoot = __dirname + '/..';
 
 Router.notFound = (request, response) => {
   response.status(404);
@@ -29,6 +31,15 @@ Router.getServerTime = (request, response) => {
   response.json({
     timestamp: utils.serverTime()
   });
+};
+
+Router.getServerNews = (request, response) => {
+  // fs.readFile('public/main.html', function (err, html) {
+  //   res.writeHeader(200, { "Content-Type": 'text/html' });
+  //   res.write(html);
+  //   res.end();
+  // });
+  response.sendFile('news.html', { root: projRoot + '/www' });
 };
 
 Router.unknownApiError = (request, response) => {
