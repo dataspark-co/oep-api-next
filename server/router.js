@@ -34,11 +34,6 @@ Router.getServerTime = (request, response) => {
 };
 
 Router.getServerNews = (request, response) => {
-  // fs.readFile('public/main.html', function (err, html) {
-  //   res.writeHeader(200, { "Content-Type": 'text/html' });
-  //   res.write(html);
-  //   res.end();
-  // });
   response.sendFile('news.html', { root: projRoot + '/www' });
 };
 
