@@ -19,6 +19,7 @@ app.get('/api/blocks', Router.getAllBlocks);
 app.get('/api/server_time', Router.getServerTime);
 app.get('/api/pool_hash_rate', Router.getPoolHashRate);
 app.get('/api/get_num_workers', Router.getNumWorkers);
+app.get('/api/miner_hash_rate/:minerId', Router.getMinerHashRate);
 app.get('/api/news', Router.getServerNews);
 app.get('/api/*', Router.unknownApiError);
 

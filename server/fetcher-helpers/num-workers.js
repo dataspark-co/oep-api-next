@@ -128,7 +128,7 @@ function numWorkersFetch() {
               numWorkersData = tempNumWorkers;
             }
           });
-        }, (Math.random() + 3) * 100); // Don't hit real API with simultaneous requests.
+        }, Math.floor(1000 * (Math.random() + 1) * 3)); // Don't hit the real API with simultaneous requests.
       })(i);
     }
   });

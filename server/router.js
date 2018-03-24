@@ -27,6 +27,15 @@ Router.getNumWorkers = (request, response) => {
   });
 };
 
+Router.getMinerHashRate = (request, response) => {
+  const minerId = request.params.minerId;
+
+  response.json({
+    minerId: minerId,
+    hashRate: fetcher.getMinerHashRate(minerId)
+  });
+};
+
 Router.getServerTime = (request, response) => {
   response.json({
     timestamp: utils.serverTime()

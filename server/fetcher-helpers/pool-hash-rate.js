@@ -43,7 +43,12 @@ function poolHashRateFetch() {
           t: utils.prettyPrintTimeStamp(moment().unix())
         });
 
-        if (poolHashRateData.length > 10 * 10) {
+        const start = moment(poolHashRateData[0].t);
+        const end = moment().tz('Europe/Kiev');
+        const duration = moment.duration(end.diff(start));
+        const seconds = duration.asSeconds();
+
+        if (seconds / 60 >= 10) {
           poolHashRateData.splice(0, 1);
         }
       }
@@ -59,7 +64,7 @@ function setupPoolHashRateFetch() {
 
   setInterval(() => {
     poolHashRateFetch();
-  }, 1000 * 6); // every 6 seconds
+  }, Math.floor(1000 * (Math.random() + 1) * 4)); // Don't hit the real API with simultaneous requests.
 }
 
 function getPoolHashRateData() {
