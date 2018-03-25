@@ -1,9 +1,20 @@
+const moment = require('moment-timezone');
 const redisClient = require('./redis-client');
 const utils = require('./utils');
 const CONFIG = require('../../config.json');
 
 let allBlocksData = [];
 let allBlocksFetchSetup = false;
+
+function compareBlocks(a, b) {
+  if (a.height > b.height) {
+    return 1;
+  } else if (a.height < b.height) {
+    return -1;
+  }
+
+  return 0;
+}
 
 function getMaturedBlocks(client, callback) {
   client.exists('eth:blocks:matured', function (err, reply) {
@@ -40,50 +51,50 @@ function getMaturedBlocks(client, callback) {
         return;
       }
 
-      let blockArr = [];
-      let largestIdx = 0;
-      for (let i = 0; i < res[1].length; i += 2) {
-        let idx = parseInt(res[1][i + 1]) - 1;
+      const endDate = moment().tz('Europe/Kiev');
 
-        if (idx < 0) {
+      let blockArr = [];
+      for (let i = 0; i < res[1].length; i += 2) {
+        if (i >= res[1].length) {
+          break;
+        }
+
+        if (typeof res[1][i] !== 'string') {
           continue;
         }
+        let blockParams = res[1][i].split(':');
+
+        if (!blockParams || !blockParams.length || blockParams.length < 5) {
+          continue;
+        }
+
+        let timestamp = utils.prettyPrintTimeStamp(blockParams[4]);
+
+        const startDate = moment(timestamp);
+        const duration = moment.duration(endDate.diff(startDate));
+        const minutes = duration.asMinutes();
+
+        if ((minutes / 60) >= 25) {
+          continue;
+        }
+
+        let hash = blockParams[3];
+
+        if (typeof res[1][i + 1] !== 'string') {
+          continue;
+        }
+        let height = parseInt(res[1][i + 1]);
 
         blockArr.push({
-          idx: idx,
-          data: res[1][i]
-        });
-
-        if (idx > largestIdx) {
-          largestIdx = idx;
-        }
-      }
-
-      let blockArrSorted = new Array(largestIdx + 1).fill(0);
-      for (let i = 0; i < blockArr.length; i += 1) {
-        blockArrSorted[blockArr[i].idx] = blockArr[i].data;
-      }
-
-      let responseArr = [];
-      for (let i = 0; i < blockArrSorted.length; i += 1) {
-        if (typeof blockArrSorted[i] !== 'string') {
-          continue;
-        }
-
-        let blockObj = blockArrSorted[i].split(':');
-
-        if (!blockObj || !blockObj.length || blockObj.length < 5) {
-          continue;
-        }
-
-        responseArr.push({
-          height: i + 1,
-          hash: blockObj[3],
-          timestamp: utils.prettyPrintTimeStamp(blockObj[4])
+          height: height,
+          hash: hash,
+          timestamp: timestamp
         });
       }
 
-      redisClient.stopClient(client, callback, responseArr);
+      blockArr.sort(compareBlocks);
+
+      redisClient.stopClient(client, callback, blockArr);
     });
   });
 }
