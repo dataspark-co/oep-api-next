@@ -1,0 +1,105 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Ethereum Pool API"
+  description: "List of API access points for the Open Ethereum Pool Node.js service"
+host: "52.59.201.51:3000"
+paths:
+  /api/get_num_workers:
+    get:
+      description: "Number of workers."
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Information on pool miners along with their workers."
+          schema:
+            type: "object"
+            $ref: "#/definitions/WorkerInfo"
+  /api/pool_hash_rate:
+    get:
+      description: "Pool hash rate."
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Pool hash rate (total over all miners) within the last 24 hours."
+          schema:
+            type: "object"
+            $ref: "#/definitions/PoolHashRate"
+  /api/server_time:
+    get:
+      description: "Server time."
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "The current server time as string with timezone information."
+          schema:
+            type: "object"
+            $ref: "#/definitions/ServerTime"
+  /api/blocks:
+    get:
+      description: "A list of blocks."
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "A list of blocks found and verified within the last 24 hours."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Block"
+definitions:
+  Block:
+    type: "object"
+    required:
+      - "height"
+      - "hash"
+      - "timestamp"
+    properties:
+      height:
+        type: "integer"
+        format: "int64"
+      hash:
+        type: "string"
+      timestamp:
+        type: "string"
+  ServerTime:
+    type: "object"
+    required:
+      - "timestamp"
+    properties:
+      timestamp:
+        type: "string"
+  PoolHashRate:
+    type: "object"
+    required:
+      - "poolHashRate"
+    properties:
+      poolHashRate:
+        type: "array"
+        items:
+          $ref: "#/definitions/HashRate"
+  HashRate:
+    type: "object"
+    required:
+      - "h"
+      - "t"
+    properties:
+      h:
+        type: "integer"
+        format: "int64"
+      t:
+        type: "string"
+  WorkerInfo:
+    type: "object"
+    required:
+      - "allMiners"
+      - "numWorkers"
+    properties:
+      allMiners:
+        type: "object"
+      numWorkers:
+        type: "integer"
+        format: "int64"

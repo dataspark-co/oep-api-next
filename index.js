@@ -1,4 +1,7 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger-config.yaml');
 
 const CONFIG = require('./config.json');
 
@@ -10,6 +13,8 @@ const Router = require('./server/router');
 
 const app = express();
 const port = CONFIG.api.port;
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(RouteLogMiddleware);
 
