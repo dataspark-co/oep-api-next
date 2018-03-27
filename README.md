@@ -30,6 +30,8 @@ example of the contents of this file:
 
 4. Run the script `stop-new-api.sh` to stop the server.
 
+5. Update the file `www/news.html` for latest news.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for more details.
